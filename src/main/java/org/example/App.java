@@ -1,6 +1,27 @@
 package org.example;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Locale;
+import java.util.Scanner;
+
+class Price {
+    private final int price;
+    private final String hour;
+
+    public Price(String date, int price) {
+        this.price = price;
+        this.hour = date;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public String getHour() {
+        return hour;
+    }
+}
 
 public class App {
 
@@ -9,16 +30,20 @@ public class App {
     // Valde att göra en for loop som går igenom alla Price objekt i arrayen och
     // fyller i alla objekten med de olika timmarna på dygnet.
     static {
-        for (int i = 0; i <= 23 ; i++) {
+        for (int i = 0; i <= 23; i++) {
             String timme;
             //I denna if sats så har jag sagt att när loopen är på sista "hoppet" så ska den sätta in 23-24
-             // annars så skriver den 23-00.
-            if (i == 23) { timme = "23-24"; }  else timme = String.format("%02d-%02d", i, (i + 1) % 24);
-            prices[i]  = new Price(timme, 0);
+            // annars så skriver den 23-00.
+            if (i == 23) {
+                timme = "23-24";
+            } else timme = String.format("%02d-%02d", i, (i + 1) % 24);
+            prices[i] = new Price(timme, 0);
         }
     }
 
     public static void main(String[] args) {
+        Locale.setDefault(Locale.of("SV", "SE"));
+
         Scanner sc = new Scanner(System.in);
         boolean exit = false;
 
@@ -41,6 +66,7 @@ public class App {
                 case "2" -> minMaxAverage();
                 case "3" -> sortPrices();
                 case "4" -> bestChargeTime();
+                case "5" -> System.out.println("visualize");
                 case "e", "E" -> exit = true;
                 default -> System.out.println("ogiltigt val");
             }
@@ -61,10 +87,10 @@ public class App {
         // I .max(Comparator.comparingInt(Price::getPrice)).orElseThrow() Så letar man upp Price objektet som innehåller
         // den högsta värdet av fältet price som hämtas genom getPrice, skulle det vara så att inget värde finns tillgängligt
         // så kommer den att ge NoSuchElementException.
-        Price highest = Arrays.stream(prices).max( Comparator.comparingInt(Price::getPrice)).orElseThrow();
+        Price highest = Arrays.stream(prices).max(Comparator.comparingInt(Price::getPrice)).orElseThrow();
 
         // Samma sak som i variabeln som ovan skillnaden är att man letar efter det minsta värdet av fältet price.
-        Price lowest = Arrays.stream(prices).min( Comparator.comparingInt(Price::getPrice)).orElseThrow();
+        Price lowest = Arrays.stream(prices).min(Comparator.comparingInt(Price::getPrice)).orElseThrow();
 
         //I denna variabel så tar jag priserna som finns i arrayen och slår plussar ihop dem så att jag får summan.
         float sum = Arrays.stream(prices).mapToInt(Price::getPrice).sum();
@@ -82,7 +108,7 @@ public class App {
         Price[] priceList = Arrays.copyOf(prices, prices.length);
         Arrays.sort(priceList, Comparator.comparingInt(Price::getPrice).reversed());
         for (Price price : priceList) {
-            System.out.println(price.getHour() + " " +  price.getPrice() + " öre");
+            System.out.println(price.getHour() + " " + price.getPrice() + " öre");
         }
     }
 
@@ -113,29 +139,9 @@ public class App {
 
         // Printar ut resultatet
         System.out.printf("""
-            Påbörja laddning klockan %s
-            Medelpris 4h: %.1f öre/kWh
-            """, prices[bestStartHour].getHour().substring(0, 2), average);
+                Påbörja laddning klockan %s
+                Medelpris 4h: %.1f öre/kWh
+                """, prices[bestStartHour].getHour().substring(0, 2), average);
     }
-
-
-    static class Price {
-     private final int price;
-     private final String hour;
-
-     public Price(String date, int price) {
-         this.price = price;
-         this.hour = date;
-     }
-
-     public int getPrice() {
-         return price;
-     }
-
-     public String getHour() {
-         return hour;
-     }
- }
-
 }
 
