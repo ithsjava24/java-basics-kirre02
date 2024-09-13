@@ -66,7 +66,7 @@ public class App {
                 case "2" -> minMaxAverage();
                 case "3" -> sortPrices();
                 case "4" -> bestChargeTime();
-                case "5" -> System.out.println("visualize");
+                case "5" -> visualize();
                 case "e", "E" -> exit = true;
                 default -> System.out.println("ogiltigt val");
             }
@@ -142,6 +142,52 @@ public class App {
                 Påbörja laddning klockan %s
                 Medelpris 4h: %.1f öre/kWh
                 """, prices[bestStartHour].getHour().substring(0, 2), average);
+    }
+
+    public static void visualize() {
+        int MAX = Arrays.stream(prices).max(Comparator.comparingInt(Price::getPrice)).orElseThrow().getPrice();
+        int MIN = Arrays.stream(prices).min(Comparator.comparingInt(Price::getPrice)).orElseThrow().getPrice();
+
+        final int ROW_COUNT = 6;
+        final int COLUMN_COUNT = prices.length;
+        final float DIFFERENCE = (MAX - MIN) / (ROW_COUNT - 1f);
+
+        for (int i = ROW_COUNT; i > 0; i--) {
+            StringBuilder output = new StringBuilder();
+            int lowerBound = (i == 1) ? MIN : (int) (MAX - (ROW_COUNT - i) * DIFFERENCE);
+
+            int MAX_LENGTH = Integer.toString(MAX).length();
+            int MIN_LENGTH = Integer.toString(MIN).length();
+
+            int longest = Math.max(MIN_LENGTH, MAX_LENGTH);
+
+            if (i == ROW_COUNT) {
+                String space = MAX_LENGTH < longest ? spaces(longest - MAX_LENGTH) : "";
+                output.append(space).append(MAX).append("|");
+            } else if (i == 1) {
+                String space = MIN_LENGTH < longest ? spaces(longest - MIN_LENGTH) : "";
+                output.append(space).append(MIN).append("|");
+            } else {
+                output.append(spaces(longest)).append("|");
+            }
+
+            for (int j = 0; j < COLUMN_COUNT; j++) {
+                int currentPrice = prices[j].getPrice(); //data.get(j).price();
+                if (currentPrice >= lowerBound) {
+                    output.append("  x");
+                } else {
+                    output.append("   ");
+                }
+            }
+            System.out.print(output + "\n");
+        }
+
+        System.out.print("   |------------------------------------------------------------------------" + "\n");
+        System.out.print("   | 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23"+ "\n");
+    }
+
+    static String spaces(int amount) {
+        return " ".repeat(Math.max(amount, 0));
     }
 }
 
